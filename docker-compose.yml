@@ -1,0 +1,92 @@
+version: '3.8'
+
+services:
+  # GPU Worker - معالجة الصور
+  gpu-worker:
+    build: ./services/gpu-worker
+    container_name: sm_up_gpu_worker
+    environment:
+      - CUDA_VISIBLE_DEVICES=0
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+    ports:
+      - "8001:8000"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    restart: unless-stopped
+    networks:
+      - sm_up_network
+
+  # API Gateway - الواجهة الخلفية
+  api-gateway:
+    build: ./services/api-gateway
+    container_name: sm_up_api
+    environment:
+      - DATABASE_URL=postgresql://sm_up:password@database:5432/sm_up_db
+      - REDIS_URL=redis://redis:6379
+      - GPU_WORKER_URL=http://gpu-worker:8000
+    volumes:
+      - ./data:/app/data
+    ports:
+      - "8000:8000"
+    depends_on:
+      - database
+      - redis
+      - gpu-worker
+    restart: unless-stopped
+    networks:
+      - sm_up_network
+
+  # Frontend - واجهة المستخدم
+  frontend:
+    build: ./services/frontend
+    container_name: sm_up_frontend
+    environment:
+      - REACT_APP_API_URL=http://localhost:8000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api-gateway
+    restart: unless-stopped
+    networks:
+      - sm_up_network
+
+  # Database - قاعدة البيانات
+  database:
+    image: postgres:15
+    container_name: sm_up_db
+    environment:
+      - POSTGRES_DB=sm_up_db
+      - POSTGRES_USER=sm_up
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./services/database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    networks:
+      - sm_up_network
+
+  # Redis - للطوابير والتخزين المؤقت
+  redis:
+    image: redis:7-alpine
+    container_name: sm_up_redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    networks:
+      - sm_up_network
+
+volumes:
+  postgres_data:
+
+networks:
+  sm_up_network:
+    driver: bridge
