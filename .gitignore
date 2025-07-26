@@ -25,12 +25,12 @@ venv/
 env/
 ENV/
 
-# Environment variables
+# Environment variables (root level)
 .env
 .env.local
-.env.development
-.env.staging
-.env.production
+
+# Note: Environment templates in environments/ folder are tracked
+# but should be copied to root and customized for actual use
 
 # Docker
 .dockerignore
