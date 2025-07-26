@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # SM_UP - AI Image Upscaler
 
 مشروع لرفع جودة الصور باستخدام Flux Dev + LoRA مع واجهة ويب ونظام دفع.
@@ -48,3 +49,6 @@ make test
 
 ---
 تم إنشاؤه بواسطة [ayahareedyya](https://github.com/ayahareedyya)
+=======
+# sm_up
+>>>>>>> becbcf7ead9d856f6d14e10569bef17d5752ea3f
