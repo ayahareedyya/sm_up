@@ -51,14 +51,17 @@ logs/
 *.db
 *.sqlite3
 
-# Images and uploads
-uploads/
-temp/
-data/images/
-data/results/
+# Images and uploads (but keep directory structure)
+data/uploads/*
+!data/uploads/.gitkeep
+data/temp/*
+!data/temp/.gitkeep
+data/results/*
+!data/results/.gitkeep
 
-# Models (too large for git)
-models/
+# Models (too large for git, but keep directory)
+models/*
+!models/.gitkeep
 *.safetensors
 *.ckpt
 *.pth
